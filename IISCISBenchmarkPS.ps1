@@ -4,13 +4,15 @@
 # 1 Basic Configurations	10
 #	1.1 Ensure web content is on non-system partition (Scored)
 #   Audit
-
+Get-Website
 
 #   Remediation
 
-
-
 #	1.2 Ensure 'host headers' are on all sites (Scored)
+#   Audit
+Get-Website
+#   Remediation
+
 #	1.3 Ensure 'directory browsing' is set to disabled (Scored)
 #	1.4 Ensure 'application pool identity' is configured for all application pools (Scored)
 #	1.5 Ensure 'unique application pools' is set for sites (Scored)
