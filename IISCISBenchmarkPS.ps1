@@ -9,6 +9,7 @@
 #   Remediation
 
 
+
 #	1.2 Ensure 'host headers' are on all sites (Scored)
 #	1.3 Ensure 'directory browsing' is set to disabled (Scored)
 #	1.4 Ensure 'application pool identity' is configured for all application pools (Scored)
