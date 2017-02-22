@@ -70,5 +70,9 @@
 #	7.12 Ensure AES 128/128 Cipher Suite is configured (Not Scored)
 #	7.13 Ensure AES 256/256 Cipher Suite is enabled (Scored)
 #	7.14 Ensure TLS Cipher Suite ordering is configured (Scored)
+#   List available cyphers
+(get-item HKLM:\SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002\).getvalue('Functions')
+#or
+Get-TlsCipherSuite | Format-Table -Property Name
 
 #	Test Data
