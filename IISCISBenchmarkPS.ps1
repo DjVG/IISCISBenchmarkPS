@@ -1,15 +1,16 @@
 ﻿#
 # IIS 10 CIS Becnchmark
 # IIS on Windows server 2016, Windows 10
-#   Audit, look at Binding mappings
+#
 
-#   Remediation,TODO 
+# Import-Module Webadministration 
 
 #
 
 # 1 Basic Configurations	10
 #	1.1 Ensure web content is on non-system partition (Scored)
 #   Audit, look at Physical Path
+# C:\Windows\System32\inetsrv>appcmd.exe list vdir
 Get-Website
 #   Remediation,TODO
 
@@ -41,15 +42,15 @@ Examples
 #
 #	1.5 Ensure 'unique application pools' is set for sites (Scored)
 #   Audit, TODO
-
+Get-Website |ft -Property Name, applicationPool
 #   Remediation,TODO 
-
+Set-ItemProperty -Path 'IIS:\Sites\Default Web Site' -Name applicationPool -Value uniqueAppPool
 #
 #	1.6 Ensure 'application pool identity' is configured for anonymous user identity (Scored)
 #   Audit, TODO
-
+Get-ChildItem -Path IIS:\AppPools |ft -Property Name, passAnonymousToken
 #   Remediation,TODO 
-
+Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Value True
 #
 
 #	2 Configure Authentication and Authorization
