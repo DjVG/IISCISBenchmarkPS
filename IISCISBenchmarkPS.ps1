@@ -7,54 +7,67 @@
 
 #
 
-# 1 Basic Configurations	10
-#	1.1 Ensure web content is on non-system partition (Scored)
+#region 1 Basic Configurations	10
+
+#region	1.1 Ensure web content is on non-system partition (Scored)
 #   Audit, look at Physical Path
 # C:\Windows\System32\inetsrv>appcmd.exe list vdir
 Get-Website
-#   Remediation,TODO
+#   Remediation,TODO New-Item -Path -ItemType Directory; Copy-Item -Path -Destination -Recurse;
 
-#	1.2 Ensure 'host headers' are on all sites (Scored)
-#   Audit, look at Binding mappings
+#endregion
+
+#region	1.2 Ensure 'host headers' are on all sites (Scored)
+#   Audit, %systemroot%\system32\inetsrv\appcmd list sites
+#look at Binding mappings, TODO
 Get-Website
-#or
-#Get-WebBinding
-#   Remediation,TODO 
-<#
-Examples
-    -------------- EXAMPLE 1: Changing a Web site binding property --------------
-    IIS:\>Set-WebBinding -Name 'Default Web Site' -BindingInformation "*:80:" -PropertyName Port -Value 1234
-    
-    Changes the setting for the Port property for the Default Web Site from 80 to 1234.
-#>
+#Get-WebBinding -HostHeader test.com
+#Get-WebBinding -Name test1
+#   Remediation
+New-WebBinding -Name test1 -Port 80 -HostHeader test1.com
+#endregion
 
-#	1.3 Ensure 'directory browsing' is set to disabled (Scored)
+#region	1.3 Ensure 'directory browsing' is set to disabled (Scored)
 #   Audit, 
 # appcmd list config /section:directoryBrowse
 
 #   Remediation,TODO 
 
-#
-#	1.4 Ensure 'application pool identity' is configured for all application pools (Scored)
-#   Audit, TODO
+#endregion
 
-#   Remediation,TODO 
-
-#
-#	1.5 Ensure 'unique application pools' is set for sites (Scored)
+#region	1.4 Ensure 'application pool identity' is configured for all application pools (Scored)
 #   Audit, TODO
-Get-Website |ft -Property Name, applicationPool
+Get-ItemProperty -Path 'IIS:\Sites\Default Web Site' -Name applicationPool -Value uniqueAppPool
+Get-ItemProperty -Path 'IIS:\Sites\Default Web Site'  |select applicationpool | gm
+#   Remediation,TODO  
+
+#endregion
+
+#region	1.5 Ensure 'unique application pools' is set for sites (Scored)
+#   Audit
+#   Get-Unique -> check for unique combination of ste names and AppPool names?
+Get-Website | select Name, applicationPool
 #   Remediation,TODO 
-Set-ItemProperty -Path 'IIS:\Sites\Default Web Site' -Name applicationPool -Value uniqueAppPool
-#
-#	1.6 Ensure 'application pool identity' is configured for anonymous user identity (Scored)
+#Get-WebAppPoolState | gm
+Get-childItem -Path IIS:\AppPools
+New-WebAppPool -Name applicationPool1
+Set-ItemProperty -Path 'IIS:\Sites\Default Web Site' -Name applicationPool -Value applicationPool1
+#endregion
+
+#region	1.6 Ensure 'application pool identity' is configured for anonymous user identity (Scored)
 #   Audit, TODO
 Get-ChildItem -Path IIS:\AppPools |ft -Property Name, passAnonymousToken
+#Get-WebConfiguration -filter system.webserver/urlcompression -PSPath iis:\
 #   Remediation,TODO 
 Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Value True
-#
+#endregion
 
-#	2 Configure Authentication and Authorization
+#endregion 
+
+
+#region 2 Configure Authentication and Authorization
+
+# Get-WebConfiguration -filter system.webServer/security/authentication/* -PSPath iis:\ -Recurse | where {$_.enabled -eq $true} | format-list
 #	2.1 Ensure 'global authorization rule' is set to restrict access (Not Scored)
 #   Audit, TODO
 
@@ -103,7 +116,10 @@ Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Va
 #   Remediation,TODO 
 
 #
-# 3 ASP.NET Configuration Recommendations
+#endregion
+
+
+#region 3 ASP.NET Configuration Recommendations
 #	3.1 Ensure 'deployment method retail' is set (Scored)
 #   Audit, TODO
 
@@ -170,10 +186,10 @@ Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Va
 #   Remediation,TODO 
 
 #
+#endregion
 
 
-
-# 4 Request Filtering and Other Restriction Modules
+#region 4 Request Filtering and Other Restriction Modules
 #	4.1 Ensure 'maxAllowedContentLength' is configured (Not Scored)
 #   Audit, TODO
 
@@ -240,10 +256,10 @@ Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Va
 #   Remediation,TODO 
 
 #
+#endregion
 
 
-
-# 5 IIS Logging Recommendations
+#region 5 IIS Logging Recommendations
 #	5.1 Ensure Default IIS web log location is moved (Scored)
 #   Audit, TODO
 
@@ -262,10 +278,10 @@ Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Va
 #   Remediation,TODO 
 
 #
+#endregion
 
 
-
-# 6 FTP Requests
+#region 6 FTP Requests
 #	6.1 Ensure FTP requests are encrypted (Scored)
 #   Audit, TODO
 
@@ -278,10 +294,10 @@ Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Va
 #   Remediation,TODO 
 
 #
+#endregion
 
 
-
-# 7 Transport Encryption
+#region 7 Transport Encryption
 #	7.1 Ensure HSTS Header is set (Not Scored)
 #   Audit, TODO
 
@@ -369,7 +385,7 @@ Get-TlsCipherSuite | Format-Table -Property Name
 #   Remediation,TODO 
 
 #
-#   
+#endregion
 
 
 #	Test Data
