@@ -29,7 +29,8 @@ Examples
 #>
 
 #	1.3 Ensure 'directory browsing' is set to disabled (Scored)
-#   Audit, TODO
+#   Audit, 
+# appcmd list config /section:directoryBrowse
 
 #   Remediation,TODO 
 
