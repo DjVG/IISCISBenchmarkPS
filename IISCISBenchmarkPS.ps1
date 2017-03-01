@@ -28,18 +28,19 @@ New-WebBinding -Name test1 -Port 80 -HostHeader test1.com
 #endregion
 
 #region	1.3 Ensure 'directory browsing' is set to disabled (Scored)
-#   Audit, 
-# appcmd list config /section:directoryBrowse
-
-#   Remediation,TODO 
-
+#   Audit, appcmd list config /section:directoryBrowse
+Get-WebConfigurationProperty -Filter system.webserver/directorybrowse -PSPath iis:\ -Name Enabled | select Value
+#   Remediation
+Set-WebConfigurationProperty -Filter system.webserver/directorybrowse -PSPath iis:\ -Name Enabled  -Value False
 #endregion
 
 #region	1.4 Ensure 'application pool identity' is configured for all application pools (Scored)
 #   Audit, TODO
+#appcmd list config /section:applicationPools
 Get-ItemProperty -Path 'IIS:\Sites\Default Web Site' -Name applicationPool -Value uniqueAppPool
 Get-ItemProperty -Path 'IIS:\Sites\Default Web Site'  |select applicationpool | gm
 #   Remediation,TODO  
+#appcmd set config /section:applicationPools /[name='<your apppool>'].processModel.identityType:ApplicationPoolIdentity 
 
 #endregion
 
@@ -55,11 +56,14 @@ Set-ItemProperty -Path 'IIS:\Sites\Default Web Site' -Name applicationPool -Valu
 #endregion
 
 #region	1.6 Ensure 'application pool identity' is configured for anonymous user identity (Scored)
-#   Audit, TODO
-Get-ChildItem -Path IIS:\AppPools |ft -Property Name, passAnonymousToken
+#Audit, TODO Check specific app otr site config vs server wide global config
+#Get-ChildItem -Path IIS:\AppPools |ft -Property Name, passAnonymousToken
+
+Get-WebConfigurationProperty -pspath 'iis:\'  -filter "system.webServer/security/authentication/anonymousAuthentication" -Name userName
 #Get-WebConfiguration -filter system.webserver/urlcompression -PSPath iis:\
 #   Remediation,TODO 
-Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Value True
+#Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Value True
+Set-WebConfigurationProperty -pspath 'iis:\'  -filter "system.webServer/security/authentication/anonymousAuthentication" -Name userName -Value ""
 #endregion
 
 #endregion 
@@ -70,8 +74,10 @@ Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Va
 # Get-WebConfiguration -filter system.webServer/security/authentication/* -PSPath iis:\ -Recurse | where {$_.enabled -eq $true} | format-list
 #	2.1 Ensure 'global authorization rule' is set to restrict access (Not Scored)
 #   Audit, TODO
-
+Get-WebConfiguration -pspath 'IIS:\'  -filter "system.webServer/security/authorization" 
 #   Remediation,TODO 
+Remove-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST/test1'  -filter "system.web/authorization" -name "."
+Add-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST/test1'  -filter "system.web/authorization" -name "." -value @{roles='administrators'}
 
 #
 #	2.2 Ensure access to sensitive site features is restricted to authenticated principals only (Not Scored)
@@ -210,8 +216,11 @@ Set-ItemProperty -Path IIS:\AppPools\DefaultAppPool -Name passAnonymousToken -Va
 #
 #	4.4 Ensure non-ASCII characters in URLs are not allowed (Scored)
 #   Audit, TODO
+Get-WebConfigurationProperty -pspath 'iis:\'  -filter "system.webServer/security/requestFiltering" -name "allowHighBitCharacters"
 
 #   Remediation,TODO 
+Set-WebConfigurationProperty -pspath 'IIS:\Sites\Default Web Site'  -filter "system.webServer/security/requestFiltering" -name "allowHighBitCharacters" -value "False"
+#Remove-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST/Default Web Site'  -filter "system.webServer/security/requestFiltering/filteringRules" -name "."
 
 #
 #	4.5 Ensure Double-Encoded requests will be rejected (Scored)
