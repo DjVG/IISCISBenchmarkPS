@@ -363,6 +363,12 @@ Set-WebConfigurationProperty -pspath 'IIS:\Sites\Default Web Site'  -filter "sys
 #
 #	7.10 Ensure RC4 Cipher Suites is disabled (Scored)
 #   Audit, TODO
+#fileting examples for SHA1 cipher suites
+# works:
+# Get-Service | where {$_.Name -eq 'bits'} | Stop-Service -WhatIf
+# doen't work:
+#Get-TlsCipherSuite | Disable-TlsCipherSuite -WhatIf
+#Get-TlsCipherSuite | where {$_.Cipher -eq 'RC4'}|Disable-TlsCipherSuite -WhatIf
 
 #   Remediation,TODO 
 
@@ -382,13 +388,16 @@ Set-WebConfigurationProperty -pspath 'IIS:\Sites\Default Web Site'  -filter "sys
 #	7.13 Ensure AES 256/256 Cipher Suite is enabled (Scored)
 #   Audit, TODO
 
+Get-TlsCipherSuite | where {$_.Cipher -eq "AES"} | ft -Property Name, Cipher, Hash, Exchange
+
 #   Remediation,TODO 
 
 #
 #	7.14 Ensure TLS Cipher Suite ordering is configured (Scored)
 #   Audit, TODO
 #   List available cyphers
-(get-item HKLM:\SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002\).getvalue('Functions')
+Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002\ -Name Functions | Select-Object -ExpandProperty Functions | Out-GridView 
+#(get-item HKLM:\SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002\).getvalue('Functions')
 #or
 Get-TlsCipherSuite | Format-Table -Property Name
 #   Remediation,TODO 
