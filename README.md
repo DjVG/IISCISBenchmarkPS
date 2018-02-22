@@ -1,4 +1,4 @@
-# Microsoft IIS 10 CIS Benchmark PowerShell verification and remediation scripts 
+# Microsoft IIS 10 CIS Benchmark verification and remediation PowerShell scripts 
 
 This is an attempt to develop verification and remediation scripts for the [CIS IIS Security Benchmark](https://www.cisecurity.org/benchmark/microsoft_iis/) audit and remediation recommendations using PowerShell cmdlets from the WebAdministration module (and from the new IISAdministration module only if needed) . 
 
